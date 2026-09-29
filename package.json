@@ -63,6 +63,7 @@
   "build": {
     "appId": "com.dovi.remuxer",
     "productName": "DoVi Remuxer",
+    "afterPack": "scripts/after-pack.cjs",
     "directories": {
       "output": "release"
     },
@@ -75,7 +76,10 @@
         "dmg",
         "zip"
       ],
-      "category": "public.app-category.video"
+      "category": "public.app-category.video",
+      "identity": null,
+      "gatekeeperAssess": false,
+      "hardenedRuntime": false
     },
     "win": {
       "target": [
