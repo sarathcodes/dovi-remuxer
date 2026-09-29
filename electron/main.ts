@@ -18,8 +18,9 @@ let win: BrowserWindow | null = null;
 const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL'];
 
 function createWindow() {
-  const preloadPath = path.join(__dirname, 'preload.mjs');
-  const finalPreload = fs.existsSync(preloadPath) ? preloadPath : path.join(__dirname, 'preload.js');
+  const preloadCjs = path.join(__dirname, 'preload.cjs');
+  const finalPreload = fs.existsSync(preloadCjs) ? preloadCjs : path.join(__dirname, 'preload.js');
+  console.log('[Main] Loading preload script at:', finalPreload);
 
   win = new BrowserWindow({
     width: 1080,
@@ -83,8 +84,8 @@ ipcMain.handle('binaries:set-paths', async (_event, paths: Partial<BinaryStatus>
 });
 
 ipcMain.handle('dialog:select-folder', async () => {
-  if (!win) return null;
-  const result = await dialog.showOpenDialog(win, {
+  const targetWin = BrowserWindow.getFocusedWindow() || win;
+  const result = await dialog.showOpenDialog(targetWin || undefined as any, {
     properties: ['openDirectory', 'createDirectory'],
   });
   if (!result.canceled && result.filePaths.length > 0) {
@@ -94,8 +95,8 @@ ipcMain.handle('dialog:select-folder', async () => {
 });
 
 ipcMain.handle('dialog:select-file', async () => {
-  if (!win) return null;
-  const result = await dialog.showOpenDialog(win, {
+  const targetWin = BrowserWindow.getFocusedWindow() || win;
+  const result = await dialog.showOpenDialog(targetWin || undefined as any, {
     properties: ['openFile'],
     filters: [
       { name: 'MKV Video (*.mkv)', extensions: ['mkv'] },

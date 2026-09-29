@@ -29,8 +29,8 @@ function ensureEventSource() {
   }
 }
 
-// Universal client that works seamlessly both in Electron and in standard browsers
-export const clientApi: IElectronAPI = (typeof window !== 'undefined' && (window as any).api) ? (window as any).api : {
+// Fallback client for web server mode
+const fallbackApi: IElectronAPI = {
   probeMedia: async (filePath: string): Promise<MediaProbeResult> => {
     const res = await fetch('/api/probe', {
       method: 'POST',
@@ -111,3 +111,14 @@ export const clientApi: IElectronAPI = (typeof window !== 'undefined' && (window
     });
   },
 };
+
+// Universal client that works seamlessly both in Electron and in standard browsers
+export const clientApi: IElectronAPI = new Proxy({} as IElectronAPI, {
+  get(_target, prop: string) {
+    if (typeof window !== 'undefined' && (window as any).api && typeof (window as any).api[prop] === 'function') {
+      return (window as any).api[prop].bind((window as any).api);
+    }
+    return (fallbackApi as any)[prop];
+  },
+});
+

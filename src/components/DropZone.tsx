@@ -122,6 +122,10 @@ export const DropZone: React.FC<DropZoneProps> = ({ mediaInfo, isLoading, onFile
       <button
         type="button"
         disabled={isLoading}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleBrowse();
+        }}
         className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-lg shadow-purple-600/30 transition"
       >
         Browse MKV Video

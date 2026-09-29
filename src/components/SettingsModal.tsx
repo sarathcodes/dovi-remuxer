@@ -23,6 +23,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     mp4boxPath: '',
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [savedNotice, setSavedNotice] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     if (binaries) {
@@ -42,8 +44,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     try {
       await clientApi.setBinaryPaths(paths);
       onRefresh();
+      setSavedNotice(true);
+      setTimeout(() => setSavedNotice(false), 2500);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await onRefresh();
+    } finally {
+      setTimeout(() => setIsRefreshing(false), 500);
     }
   };
 
@@ -172,14 +185,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         <div className="flex justify-between items-center pt-3 border-t border-slate-800">
           <button
-            onClick={onRefresh}
+            disabled={isRefreshing}
+            onClick={handleRefresh}
             className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium border border-slate-700 transition flex items-center space-x-1.5"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>Re-detect Tools</span>
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-purple-400' : ''}`} />
+            <span>{isRefreshing ? 'Checking...' : 'Re-detect Tools'}</span>
           </button>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
+            {savedNotice && (
+              <span className="text-emerald-400 text-xs font-medium flex items-center space-x-1 animate-fade-in">
+                <CheckCircle className="w-3.5 h-3.5" />
+                <span>Paths saved!</span>
+              </span>
+            )}
+
             <button
               onClick={onClose}
               className="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition"

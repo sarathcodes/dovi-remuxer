@@ -31,8 +31,8 @@
   "scripts": {
     "start": "node server.mjs",
     "dev": "vite",
-    "build": "vite build && esbuild electron/engine/index.ts --bundle --platform=node --format=esm --outfile=engine.mjs",
-    "build:electron": "vite build",
+    "build": "vite build && esbuild electron/preload.ts --bundle --platform=node --format=cjs --outfile=dist-electron/preload.cjs --external:electron && esbuild electron/engine/index.ts --bundle --platform=node --format=esm --outfile=engine.mjs",
+    "build:electron": "vite build && esbuild electron/preload.ts --bundle --platform=node --format=cjs --outfile=dist-electron/preload.cjs --external:electron",
     "preview": "vite preview",
     "test": "node tests/test-pipeline.mjs",
     "dist": "electron-builder",
