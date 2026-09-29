@@ -1,0 +1,34 @@
+# Node dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+dist-electron/
+release/
+build/
+out/
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+
+# Test media fixtures
+tests/fixtures/
+*.mkv
+*.mp4
+*.hevc
+*.ec3
+
+# IDEs
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
