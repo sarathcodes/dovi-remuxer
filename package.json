@@ -4,12 +4,17 @@
   "type": "module",
   "description": "Standalone cross-platform app to remux 4K Dolby Vision MKV videos to TV-compatible MP4 format using FFmpeg and mp4muxer",
   "main": "dist-electron/main.js",
-  "author": "Open Source Community",
+  "author": "Sarath Nair (@sarathcodes)",
   "license": "MIT",
+  "funding": "https://www.buymeacoffee.com/sarathcodes",
   "repository": {
     "type": "git",
-    "url": "https://github.com/user/dovi-remuxer"
+    "url": "https://github.com/sarathcodes/dovi-remuxer.git"
   },
+  "bugs": {
+    "url": "https://github.com/sarathcodes/dovi-remuxer/issues"
+  },
+  "homepage": "https://github.com/sarathcodes/dovi-remuxer#readme",
   "keywords": [
     "dolby-vision",
     "dovi",

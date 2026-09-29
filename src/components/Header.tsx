@@ -60,7 +60,7 @@ export const Header: React.FC<HeaderProps> = ({ binaries, onOpenSettings }) => {
 
         {/* Buy Me a Coffee Button */}
         <a
-          href="https://www.buymeacoffee.com/yourname"
+          href="https://www.buymeacoffee.com/sarathcodes"
           target="_blank"
           rel="noreferrer"
           className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-semibold transition shadow-sm"
@@ -81,7 +81,7 @@ export const Header: React.FC<HeaderProps> = ({ binaries, onOpenSettings }) => {
 
         {/* GitHub link */}
         <a
-          href="https://github.com/user/dovi-remuxer"
+          href="https://github.com/sarathcodes/dovi-remuxer"
           target="_blank"
           rel="noreferrer"
           className="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition border border-slate-700/60"

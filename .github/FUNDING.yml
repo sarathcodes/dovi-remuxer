@@ -1,4 +1,5 @@
-# These are supported funding model platforms for GitHub Sponsors and funding button
-buy_me_a_coffee: yourname # Replace with your Buy Me a Coffee username (e.g., lakshmimohan)
-ko_fi: yourname          # Optional: Replace with your Ko-fi username
-custom: ['https://www.buymeacoffee.com/yourname']
+# Supported funding model platforms for GitHub Sponsors and funding button
+github: sarathcodes
+buy_me_a_coffee: sarathcodes
+ko_fi: sarathcodes
+custom: ['https://www.buymeacoffee.com/sarathcodes', 'https://github.com/sponsors/sarathcodes']
