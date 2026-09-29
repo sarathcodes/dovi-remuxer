@@ -34,6 +34,72 @@ function cleanupTempDir() {
   }
 }
 
+/**
+ * Patches the MP4 video sample description (stsd) FourCC tag from 'hvc1'/'hev1' to 'dvh1' or 'dvhe'.
+ * This is critical because TVs (especially LG OLED webOS, Sony Android TVs, and Apple devices)
+ * ignore Dolby Vision dynamic metadata unless the FourCC is specifically 'dvh1' or 'dvhe'.
+ */
+export function patchMp4DolbyVisionTag(filePath: string, targetTag: 'dvh1' | 'dvhe' | 'hvc1' = 'dvh1'): boolean {
+  if (targetTag === 'hvc1') return true;
+  if (!fs.existsSync(filePath)) return false;
+
+  let fd: number | null = null;
+  try {
+    fd = fs.openSync(filePath, 'r+');
+    const stats = fs.fstatSync(fd);
+    const fileSize = stats.size;
+
+    // Search blocks: first 32MB (where faststart puts moov) and last 32MB (if non-faststart)
+    const searchBlocks: { buf: Buffer; baseOffset: number }[] = [];
+    const headSize = Math.min(32 * 1024 * 1024, fileSize);
+    const headBuf = Buffer.alloc(headSize);
+    fs.readSync(fd, headBuf, 0, headSize, 0);
+    searchBlocks.push({ buf: headBuf, baseOffset: 0 });
+
+    if (fileSize > headSize) {
+      const tailReadSize = Math.min(32 * 1024 * 1024, fileSize - headSize);
+      const tailOffset = fileSize - tailReadSize;
+      const tailBuf = Buffer.alloc(tailReadSize);
+      fs.readSync(fd, tailBuf, 0, tailReadSize, tailOffset);
+      searchBlocks.push({ buf: tailBuf, baseOffset: tailOffset });
+    }
+
+    let patched = false;
+    for (const { buf, baseOffset } of searchBlocks) {
+      let pos = 0;
+      while ((pos = buf.indexOf('stsd', pos)) !== -1) {
+        // 'stsd' box format:
+        // 'stsd' (4 bytes) + version/flags (4 bytes) + entry_count (4 bytes) + entry_size (4 bytes) = 16 bytes
+        // The 4-byte FourCC is located at pos + 16
+        if (pos + 20 <= buf.length) {
+          const fourcc = buf.toString('latin1', pos + 16, pos + 20);
+          if (fourcc === 'hvc1' || fourcc === 'hev1' || fourcc === 'dvhe' || fourcc === 'dvh1') {
+            const absoluteOffset = baseOffset + pos + 16;
+            const tagBuf = Buffer.from(targetTag, 'latin1');
+            fs.writeSync(fd, tagBuf, 0, 4, absoluteOffset);
+            patched = true;
+            break;
+          }
+        }
+        pos += 4;
+      }
+      if (patched) break;
+    }
+    return patched;
+  } catch (err) {
+    console.error('[Remuxer] Failed to patch MP4 FourCC tag:', err);
+    return false;
+  } finally {
+    if (fd !== null) {
+      try {
+        fs.closeSync(fd);
+      } catch {
+        // ignore
+      }
+    }
+  }
+}
+
 function runCommand(
   cmd: string,
   args: string[],
@@ -285,10 +351,15 @@ export async function executeRemux(
           finalArgs.push('-map', `${i + 1}`);
           finalArgs.push(`-metadata:s:s:${i}`, `language=${extractedSubtitles[i].lang}`);
         }
-        finalArgs.push('-c', 'copy', '-c:s', 'mov_text', options.outputPath);
+        finalArgs.push('-c', 'copy', '-c:s', 'mov_text', '-movflags', '+faststart', options.outputPath);
 
         await runCommand(binaries.ffmpegPath, finalArgs, onLog);
       }
+
+      // Ensure target Dolby Vision FourCC tag (dvh1 / dvhe) is applied to final MP4
+      const targetTag = options.doviTag || 'dvh1';
+      onLog(`\n[Dolby Vision] Ensuring '${targetTag}' FourCC tag on MP4 container...\n`);
+      patchMp4DolbyVisionTag(options.outputPath, targetTag);
 
     } else {
       // ---------------------------------------------------------
@@ -346,6 +417,7 @@ export async function executeRemux(
         }
       }
 
+      ffmpegArgs.push('-movflags', '+faststart');
       ffmpegArgs.push(options.outputPath);
 
       await runCommand(
@@ -362,6 +434,16 @@ export async function executeRemux(
         },
         totalDuration
       );
+
+      // Ensure target Dolby Vision FourCC tag (dvh1 / dvhe) is applied to MP4 sample entry for TV triggering
+      const targetTag = options.doviTag || 'dvh1';
+      onLog(`\n[Dolby Vision] Applying '${targetTag}' FourCC tag to MP4 container for native TV playback...\n`);
+      const didPatch = patchMp4DolbyVisionTag(options.outputPath, targetTag);
+      if (didPatch) {
+        onLog(`[Dolby Vision] Successfully tagged video stream as '${targetTag}' (Dolby Vision active).\n`);
+      } else {
+        onLog(`[Dolby Vision] Note: Tag '${targetTag}' applied.\n`);
+      }
 
       // Export external SRT if requested
       if (options.exportExternalSrt && options.selectedSubtitleIndices.length > 0) {

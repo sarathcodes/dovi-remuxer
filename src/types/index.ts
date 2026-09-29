@@ -58,6 +58,7 @@ export interface RemuxOptions {
   muxerEngine: 'hybrid' | 'mp4muxer' | 'ffmpeg';
   embedSubtitles: boolean;
   exportExternalSrt: boolean;
+  doviTag?: 'dvh1' | 'dvhe' | 'hvc1';
 }
 
 export interface ConversionProgress {

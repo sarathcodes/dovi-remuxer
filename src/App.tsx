@@ -29,6 +29,7 @@ export default function App() {
     muxerEngine: 'hybrid',
     embedSubtitles: true,
     exportExternalSrt: true,
+    doviTag: 'dvh1',
   });
 
   const checkTools = useCallback(async () => {

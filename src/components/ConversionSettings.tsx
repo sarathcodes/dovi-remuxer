@@ -27,7 +27,7 @@ export const ConversionSettings: React.FC<ConversionSettingsProps> = ({
         <span className="text-xs text-slate-400">Configured for standard TV USB/DLNA playback</span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
         {/* Dolby Vision Profile */}
         <div>
           <label className="block text-slate-400 font-medium mb-1.5 flex items-center justify-between">
@@ -49,10 +49,37 @@ export const ConversionSettings: React.FC<ConversionSettingsProps> = ({
             }
             className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-purple-500"
           >
-            <option value="auto">Auto-Detect (Preserve Source Profile)</option>
-            <option value="profile8">Profile 8.1 (Highest TV Compatibility)</option>
-            <option value="profile5">Profile 5 (Streaming / IPTPQc2)</option>
-            <option value="copy">Direct Pass-Through Copy</option>
+            <option value="auto">Auto-Detect (Source)</option>
+            <option value="profile8">Profile 8.1 (HDR10 Base)</option>
+            <option value="profile5">Profile 5 (Streaming)</option>
+            <option value="copy">Direct Pass-Through</option>
+          </select>
+        </div>
+
+        {/* Dolby Vision FourCC Tag */}
+        <div>
+          <label className="block text-slate-400 font-medium mb-1.5 flex items-center justify-between">
+            <span>Dolby Vision Tag</span>
+            <span
+              className="text-slate-500 cursor-help"
+              title="dvh1 triggers Dolby Vision on LG OLED (webOS), Sony Bravia, and Apple TV. hvc1 falls back to standard HDR10."
+            >
+              <HelpCircle className="w-3.5 h-3.5" />
+            </span>
+          </label>
+          <select
+            value={options.doviTag || 'dvh1'}
+            onChange={(e) =>
+              onChangeOptions((prev) => ({
+                ...prev,
+                doviTag: e.target.value as any,
+              }))
+            }
+            className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-purple-500 font-mono text-[11px]"
+          >
+            <option value="dvh1">dvh1 (LG OLED / Sony TV / Apple TV)</option>
+            <option value="dvhe">dvhe (Legacy Dolby Vision)</option>
+            <option value="hvc1">hvc1 (Standard HDR10 fallback)</option>
           </select>
         </div>
 

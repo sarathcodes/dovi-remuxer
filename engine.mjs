@@ -260,6 +260,57 @@ function cleanupTempDir() {
     activeTempDir = null;
   }
 }
+function patchMp4DolbyVisionTag(filePath, targetTag = "dvh1") {
+  if (targetTag === "hvc1") return true;
+  if (!fs3.existsSync(filePath)) return false;
+  let fd = null;
+  try {
+    fd = fs3.openSync(filePath, "r+");
+    const stats = fs3.fstatSync(fd);
+    const fileSize = stats.size;
+    const searchBlocks = [];
+    const headSize = Math.min(32 * 1024 * 1024, fileSize);
+    const headBuf = Buffer.alloc(headSize);
+    fs3.readSync(fd, headBuf, 0, headSize, 0);
+    searchBlocks.push({ buf: headBuf, baseOffset: 0 });
+    if (fileSize > headSize) {
+      const tailReadSize = Math.min(32 * 1024 * 1024, fileSize - headSize);
+      const tailOffset = fileSize - tailReadSize;
+      const tailBuf = Buffer.alloc(tailReadSize);
+      fs3.readSync(fd, tailBuf, 0, tailReadSize, tailOffset);
+      searchBlocks.push({ buf: tailBuf, baseOffset: tailOffset });
+    }
+    let patched = false;
+    for (const { buf, baseOffset } of searchBlocks) {
+      let pos = 0;
+      while ((pos = buf.indexOf("stsd", pos)) !== -1) {
+        if (pos + 20 <= buf.length) {
+          const fourcc = buf.toString("latin1", pos + 16, pos + 20);
+          if (fourcc === "hvc1" || fourcc === "hev1" || fourcc === "dvhe" || fourcc === "dvh1") {
+            const absoluteOffset = baseOffset + pos + 16;
+            const tagBuf = Buffer.from(targetTag, "latin1");
+            fs3.writeSync(fd, tagBuf, 0, 4, absoluteOffset);
+            patched = true;
+            break;
+          }
+        }
+        pos += 4;
+      }
+      if (patched) break;
+    }
+    return patched;
+  } catch (err) {
+    console.error("[Remuxer] Failed to patch MP4 FourCC tag:", err);
+    return false;
+  } finally {
+    if (fd !== null) {
+      try {
+        fs3.closeSync(fd);
+      } catch {
+      }
+    }
+  }
+}
 function runCommand(cmd, args, onData, onProgressRatio, totalDurationSeconds) {
   return new Promise((resolve, reject) => {
     if (isCancelled) {
@@ -457,9 +508,14 @@ async function executeRemux(options, onProgress, onLog) {
           finalArgs.push("-map", `${i + 1}`);
           finalArgs.push(`-metadata:s:s:${i}`, `language=${extractedSubtitles[i].lang}`);
         }
-        finalArgs.push("-c", "copy", "-c:s", "mov_text", options.outputPath);
+        finalArgs.push("-c", "copy", "-c:s", "mov_text", "-movflags", "+faststart", options.outputPath);
         await runCommand(binaries.ffmpegPath, finalArgs, onLog);
       }
+      const targetTag = options.doviTag || "dvh1";
+      onLog(`
+[Dolby Vision] Ensuring '${targetTag}' FourCC tag on MP4 container...
+`);
+      patchMp4DolbyVisionTag(options.outputPath, targetTag);
     } else {
       onLog(`
 [Engine] Starting high-performance FFmpeg Dolby Vision direct remux...
@@ -508,6 +564,7 @@ async function executeRemux(options, onProgress, onLog) {
           }
         }
       }
+      ffmpegArgs.push("-movflags", "+faststart");
       ffmpegArgs.push(options.outputPath);
       await runCommand(
         binaries.ffmpegPath,
@@ -523,6 +580,18 @@ async function executeRemux(options, onProgress, onLog) {
         },
         totalDuration
       );
+      const targetTag = options.doviTag || "dvh1";
+      onLog(`
+[Dolby Vision] Applying '${targetTag}' FourCC tag to MP4 container for native TV playback...
+`);
+      const didPatch = patchMp4DolbyVisionTag(options.outputPath, targetTag);
+      if (didPatch) {
+        onLog(`[Dolby Vision] Successfully tagged video stream as '${targetTag}' (Dolby Vision active).
+`);
+      } else {
+        onLog(`[Dolby Vision] Note: Tag '${targetTag}' applied.
+`);
+      }
       if (options.exportExternalSrt && options.selectedSubtitleIndices.length > 0) {
         for (const streamIdx of options.selectedSubtitleIndices) {
           const subStream = probeResult.subtitleStreams.find((s) => s.index === streamIdx);
@@ -569,6 +638,7 @@ export {
   cancelCurrentRemux,
   checkAllBinaries,
   executeRemux,
+  patchMp4DolbyVisionTag,
   probeMedia,
   setCustomBinaryPaths
 };
