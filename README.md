@@ -12,6 +12,9 @@
   <img src="https://img.shields.io/badge/Dolby%20Vision-Profile%205%20%7C%208.1-amber?style=flat-square" alt="Dolby Vision" />
   <img src="https://img.shields.io/badge/Platform-macOS%20%7C%20Windows%20%7C%20Linux-blue?style=flat-square" alt="Platforms" />
   <img src="https://img.shields.io/badge/Engines-Dolby%20mp4muxer%20%7C%20FFmpeg-purple?style=flat-square" alt="Engines" />
+  <a href="https://www.buymeacoffee.com/yourname" target="_blank">
+    <img src="https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Donate-yellow.svg?style=flat-square&logo=buy-me-a-coffee" alt="Buy Me A Coffee" />
+  </a>
   <img src="https://img.shields.io/badge/License-MIT-emerald?style=flat-square" alt="License" />
 </p>
 
@@ -148,6 +151,18 @@ Contributions are welcome! Please check out [CONTRIBUTING.md](CONTRIBUTING.md) t
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
+---
+
+## ☕ Support the Project
+
+If **DoVi Remuxer** saved you time or made your 4K Dolby Vision TV setup seamless, consider buying me a coffee! Your support helps keep this tool open-source, maintained, and free.
+
+<p align="center">
+  <a href="https://www.buymeacoffee.com/yourname" target="_blank">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="50" />
+  </a>
+</p>
 
 ---
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tv, Settings, Film } from 'lucide-react';
+import { Tv, Settings, Film, Coffee } from 'lucide-react';
 import type { BinaryStatus } from '../types/index';
 
 interface HeaderProps {
@@ -25,9 +25,9 @@ export const Header: React.FC<HeaderProps> = ({ binaries, onOpenSettings }) => {
         </div>
       </div>
 
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-3">
         {/* Binaries indicators */}
-        <div className="flex items-center space-x-2 bg-slate-950/60 px-3 py-1.5 rounded-lg border border-slate-800 text-xs">
+        <div className="hidden sm:flex items-center space-x-2 bg-slate-950/60 px-3 py-1.5 rounded-lg border border-slate-800 text-xs">
           <span className="text-slate-400 font-medium">Tools:</span>
           <span
             className={`inline-flex items-center space-x-1 ${
@@ -53,10 +53,22 @@ export const Header: React.FC<HeaderProps> = ({ binaries, onOpenSettings }) => {
         </div>
 
         {/* TV Compatibility Guide button or tooltip */}
-        <div className="flex items-center text-xs text-indigo-300 bg-indigo-950/40 border border-indigo-800/40 px-3 py-1.5 rounded-lg">
+        <div className="hidden md:flex items-center text-xs text-indigo-300 bg-indigo-950/40 border border-indigo-800/40 px-3 py-1.5 rounded-lg">
           <Tv className="w-3.5 h-3.5 mr-1.5 text-indigo-400" />
           <span>LG OLED / Sony TV Ready</span>
         </div>
+
+        {/* Buy Me a Coffee Button */}
+        <a
+          href="https://www.buymeacoffee.com/yourname"
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-semibold transition shadow-sm"
+          title="Support developer on Buy Me a Coffee"
+        >
+          <Coffee className="w-3.5 h-3.5 text-amber-400" />
+          <span className="hidden sm:inline">Buy me a coffee</span>
+        </a>
 
         {/* Settings button */}
         <button
