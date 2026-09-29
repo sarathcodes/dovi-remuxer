@@ -60,7 +60,7 @@ export const Header: React.FC<HeaderProps> = ({ binaries, onOpenSettings }) => {
 
         {/* Buy Me a Coffee Button */}
         <a
-          href="https://www.buymeacoffee.com/sarathcodes"
+          href="https://buymeacoffee.com/sarathsivap"
           target="_blank"
           rel="noreferrer"
           className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-semibold transition shadow-sm"
